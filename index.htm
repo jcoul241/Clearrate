@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Northline Capital — Mortgage</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init('LXwPxyRbhGCGLsbZc');</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -656,29 +658,26 @@ function syncSlider() {
 }
 
 function submitForm() {
-  var data = {
-    goal:    document.querySelector('#fs0 .choice.picked') ? document.querySelector('#fs0 .choice.picked').textContent : 'Not selected',
-    balance: document.getElementById('balInp') ? document.getElementById('balInp').value : 'Not provided',
-    credit:  document.querySelector('#fs2 .choice.picked') ? document.querySelector('#fs2 .choice.picked').textContent : 'Not selected',
-    first:   document.getElementById('i-first') ? document.getElementById('i-first').value : '',
-    last:    document.getElementById('i-last')  ? document.getElementById('i-last').value  : '',
-    phone:   document.getElementById('i-phone') ? document.getElementById('i-phone').value : '',
-    email:   document.getElementById('i-email') ? document.getElementById('i-email').value : ''
-  };
+  var goal    = document.querySelector('#fs0 .choice.picked') ? document.querySelector('#fs0 .choice.picked').textContent : 'Not selected';
+  var balance = document.getElementById('balInp') ? document.getElementById('balInp').value : 'Not provided';
+  var credit  = document.querySelector('#fs2 .choice.picked') ? document.querySelector('#fs2 .choice.picked').textContent : 'Not selected';
+  var first   = document.getElementById('i-first') ? document.getElementById('i-first').value : '';
+  var last    = document.getElementById('i-last')  ? document.getElementById('i-last').value  : '';
+  var phone   = document.getElementById('i-phone') ? document.getElementById('i-phone').value : '';
+  var email   = document.getElementById('i-email') ? document.getElementById('i-email').value : '';
 
-  fetch('https://formspree.io/f/xkopzdzn', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      _subject:      'New Lead — Northline Capital',
-      Name:          data.first + ' ' + data.last,
-      Phone:         data.phone,
-      Email:         data.email,
-      Goal:          data.goal,
-      'Loan Balance': data.balance,
-      'Credit Score': data.credit
-    })
-  }).catch(function(err){ console.log('Formspree error:', err); });
+  emailjs.send('service_hk25bcu', 'template_j9336u4', {
+    name:      first + ' ' + last,
+    phone:     phone,
+    reply_to:  email,
+    goal:      goal,
+    balance:   balance,
+    credit:    credit
+  }).then(function() {
+    console.log('Lead emailed successfully');
+  }, function(err) {
+    console.log('EmailJS error:', err);
+  });
 
   document.getElementById('fs5').classList.remove('active');
   step = 6;
