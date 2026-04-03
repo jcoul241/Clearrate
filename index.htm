@@ -671,38 +671,30 @@ window.addEventListener('load', async function() {
   }
 });
 
-// ── Load live loan data from Supabase ──
+  // ── Load live loan data from secure API ──
 async function loadTrackerData(user) {
-  var { data: pipeline } = await supabase
-    .from('loan_pipeline')
-    .select('*, leads(first_name, last_name, email)')
-    .eq('user_id', user.id)
-    .single();
+  try {
+    var { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
 
-  if (!pipeline) {
-    // Try matching by email via leads table
-    var { data: lead } = await supabase
-      .from('leads')
-      .select('*, loan_pipeline(*)')
-      .eq('email', user.email)
-      .single();
-    if (lead && lead.loan_pipeline && lead.loan_pipeline.length > 0) {
-      pipeline = lead.loan_pipeline[0];
-      pipeline.borrower_name = lead.first_name + ' ' + lead.last_name;
+    var resp = await fetch('/api/get-loan', {
+      headers: { 'Authorization': 'Bearer ' + session.access_token }
+    });
+
+    if (!resp.ok) {
+      console.log('No loan data found for this user');
+      return;
     }
-  }
 
-  if (pipeline) {
-    updateTrackerUI(pipeline);
-  }
-
-  var { data: docs } = await supabase
-    .from('documents')
-    .select('*')
-    .eq('lead_id', pipeline ? pipeline.lead_id : null);
-
-  if (docs && docs.length > 0) {
-    updateDocsUI(docs);
+    var data = await resp.json();
+    if (data.pipeline) updateTrackerUI(data.pipeline);
+    if (data.documents && data.documents.length > 0) updateDocsUI(data.documents);
+    if (data.lead) {
+      var nameEl = document.querySelector('.tracker-client-name');
+      if (nameEl) nameEl.textContent = data.lead.first_name + ' ' + data.lead.last_name;
+    }
+  } catch(e) {
+    console.log('loadTrackerData error:', e);
   }
 }
 
@@ -884,7 +876,7 @@ window.syncSlider = function() {
   s.value = raw;
 };
 
-window.submitForm = function() {
+window.submitForm = async function() {
   var goal    = document.querySelector('#fs0 .choice.picked') ? document.querySelector('#fs0 .choice.picked').textContent : 'Not selected';
   var balance = document.getElementById('balInp') ? document.getElementById('balInp').value : 'Not provided';
   var credit  = document.querySelector('#fs2 .choice.picked') ? document.querySelector('#fs2 .choice.picked').textContent : 'Not selected';
@@ -893,15 +885,30 @@ window.submitForm = function() {
   var phone   = document.getElementById('i-phone') ? document.getElementById('i-phone').value : '';
   var email   = document.getElementById('i-email') ? document.getElementById('i-email').value : '';
 
+  // 1. Send lead email via EmailJS
   emailjs.send('service_hk25bcu', 'template_j9336u4', {
     name: first + ' ' + last, phone: phone, reply_to: email,
     goal: goal, balance: balance, credit: credit
   }).then(function(){ console.log('Lead emailed'); }, function(e){ console.log('EmailJS error:', e); });
 
+  // 2. Create Supabase account + loan record automatically
+  try {
+    var resp = await fetch('/api/invite-client', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, first: first, last: last, phone: phone, goal: goal, balance: balance, credit: credit })
+    });
+    var result = await resp.json();
+    if (!result.success) console.log('Invite error:', result.error);
+  } catch(e) {
+    console.log('API error:', e);
+  }
+
+  // 3. Show success screen
   document.getElementById('fs5').classList.remove('active');
   window.step = 6;
   document.getElementById('fs6').classList.add('active');
-  showToast('Submitted!', 'A loan officer will call you within 2 hours.');
+  showToast('Submitted!', 'Check your email for a link to your loan portal.');
 };
 
 function showToast(title, msg) {
