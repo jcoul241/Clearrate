@@ -166,6 +166,23 @@ footer{background:var(--navy);padding:44px 40px 28px;border-top:1px solid rgba(2
 .ns-row strong{display:block;font-size:13px;font-weight:700;color:var(--navy);line-height:1.3}
 .ns-row span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
 
+.login-wrap{min-height:calc(100vh - 68px);display:flex;align-items:center;justify-content:center;padding:40px 20px;background:var(--cream)}
+.login-box{background:#fff;border:1px solid var(--border);border-radius:20px;padding:48px 44px;width:100%;max-width:420px;box-shadow:var(--shadow-lg)}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.login-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:var(--navy);margin-bottom:8px;font-variant-ligatures:none}
+.login-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+.login-field{margin-bottom:18px}
+.login-label{display:block;font-size:12px;font-weight:700;color:var(--navy);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.login-inp{width:100%;background:var(--cream);border:2px solid var(--border);border-radius:10px;padding:13px 16px;font-size:15px;color:var(--navy);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.login-inp:focus{border-color:var(--navy);background:#fff}
+.login-hint{font-size:11px;color:var(--muted);margin-top:5px}
+.login-err{font-size:13px;color:#9b2c2c;background:#fff5f5;border:1px solid #f7c1c1;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:none}
+.login-err.show{display:block}
+.login-btn{width:100%;background:var(--navy);color:#fff;font-weight:700;font-size:14px;letter-spacing:1.5px;padding:15px;border-radius:10px;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:4px}
+.login-btn:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px)}
+.login-btn:disabled{background:#ccc;cursor:not-allowed}
+.login-footer{text-align:center;font-size:13px;color:var(--muted);margin-top:20px}
+
 /* TRACKER */
 .tracker-wrap{max-width:960px;margin:0 auto;padding:48px 40px}
 .tracker-layout{display:grid;grid-template-columns:290px 1fr;gap:20px;align-items:start}
@@ -528,12 +545,52 @@ footer{background:var(--navy);padding:44px 40px 28px;border-top:1px solid rgba(2
 
 </div>
 
+<!-- LOGIN -->
+<div class="page" id="page-login">
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-logo">
+        <div class="logo-icon" style="width:48px;height:48px;font-size:22px;border-radius:12px;">N</div>
+        <div>
+          <div class="logo-name" style="color:var(--navy);font-size:20px;">Northline Capital</div>
+          <div class="logo-sub" style="color:var(--muted);">Loan Portal</div>
+        </div>
+      </div>
+
+      <!-- Step 1: Enter email -->
+      <div id="login-step1">
+        <h2 class="login-title">Sign in to your loan</h2>
+        <p class="login-sub">Enter your email and we'll send you a secure sign-in link. No password needed.</p>
+        <div class="login-field">
+          <label class="login-label">Email address</label>
+          <input class="login-inp" id="login-email" type="email" placeholder="you@email.com" oninput="chkLoginEmail()">
+        </div>
+        <div class="login-err" id="login-err"></div>
+        <button class="login-btn" id="login-btn" onclick="sendMagicLink()" disabled>SEND SIGN-IN LINK →</button>
+        <div class="login-footer">Don't have an account? <span onclick="goApply()" style="color:var(--gold);cursor:pointer;font-weight:600;">Start your application</span></div>
+      </div>
+
+      <!-- Step 2: Check email -->
+      <div id="login-step2" style="display:none;text-align:center;">
+        <div style="font-size:52px;margin-bottom:20px;">📬</div>
+        <h2 class="login-title" style="font-size:22px;">Check your email</h2>
+        <p class="login-sub">We sent a secure sign-in link to <strong id="login-sent-to" style="color:var(--navy)"></strong>. Click the link in that email to access your loan dashboard.</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:16px;">Didn't get it? Check your spam folder or <span onclick="backToLogin()" style="color:var(--gold);cursor:pointer;font-weight:600;">try again</span>.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- TRACKER -->
 <div class="page" id="page-tracker">
   <div class="tracker-wrap">
-    <div style="margin-bottom:30px">
-      <div class="sec-tag">Loan Status</div>
-      <h2 class="sec-title">Your refinance dashboard</h2>
+    <div style="margin-bottom:30px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div class="sec-tag">Loan Status</div>
+        <h2 class="sec-title">Your refinance dashboard</h2>
+      </div>
+      <button onclick="doLogout()" style="font-size:13px;font-weight:600;color:var(--muted);background:var(--cream2);border:1px solid var(--border);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Sign out</button>
     </div>
     <div class="tracker-layout">
       <div class="pipe-card">
@@ -561,12 +618,12 @@ footer{background:var(--navy);padding:44px 40px 28px;border-top:1px solid rgba(2
         <div class="det-card">
           <h3>💼 Loan Summary</h3>
           <div class="ls-grid">
-            <div class="ls-it"><div class="ls-lbl">Loan Amount</div><div class="ls-val">$538,000</div></div>
-            <div class="ls-it"><div class="ls-lbl">New Rate</div><div class="ls-val g">5.875%</div></div>
-            <div class="ls-it"><div class="ls-lbl">Loan Type</div><div class="ls-val">15-yr Fixed</div></div>
-            <div class="ls-it"><div class="ls-lbl">New Payment</div><div class="ls-val g">$4,512/mo</div></div>
-            <div class="ls-it"><div class="ls-lbl">Closing Costs</div><div class="ls-val">$8,500</div></div>
-            <div class="ls-it"><div class="ls-lbl">Monthly Savings</div><div class="ls-val g">+$387</div></div>
+            <div class="ls-it"><div class="ls-lbl">Loan Amount</div><div class="ls-val ls-loan-amount">$538,000</div></div>
+            <div class="ls-it"><div class="ls-lbl">New Rate</div><div class="ls-val g ls-rate">5.875%</div></div>
+            <div class="ls-it"><div class="ls-lbl">Loan Type</div><div class="ls-val ls-type">15-yr Fixed</div></div>
+            <div class="ls-it"><div class="ls-lbl">New Payment</div><div class="ls-val g ls-payment">$4,512/mo</div></div>
+            <div class="ls-it"><div class="ls-lbl">Closing Costs</div><div class="ls-val ls-closing">$8,500</div></div>
+            <div class="ls-it"><div class="ls-lbl">Monthly Savings</div><div class="ls-val g ls-savings">+$387</div></div>
           </div>
         </div>
         <div class="det-card">
@@ -582,14 +639,175 @@ footer{background:var(--navy);padding:44px 40px 28px;border-top:1px solid rgba(2
 
 <div class="toast" id="toast"><strong id="t-title"></strong><span id="t-msg"></span></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+var SUPA_URL = 'https://czmzsqtejdrfcqwsszau.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bXpzcXRlamRyZmNxd3NzemF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODYxODEsImV4cCI6MjA5MDE2MjE4MX0.l8OrqOBR8tCjjoKIiYDN2oVzGDHPmDHyaQa25My4JhQ';
+var supabase = createClient(SUPA_URL, SUPA_KEY);
+
 var step = 0;
+
+// ── On page load: check if user is already logged in via magic link ──
+window.addEventListener('load', async function() {
+  var hash = window.location.hash;
+  // Supabase puts the token in the URL hash after magic link click
+  if (hash && hash.includes('access_token')) {
+    var { data, error } = await supabase.auth.getSessionFromUrl();
+    if (data && data.session) {
+      await loadTrackerData(data.session.user);
+      showPage('tracker');
+      setNav('tracker');
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+  }
+  // Check existing session
+  var { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await loadTrackerData(session.user);
+  }
+});
+
+// ── Load live loan data from Supabase ──
+async function loadTrackerData(user) {
+  var { data: pipeline } = await supabase
+    .from('loan_pipeline')
+    .select('*, leads(first_name, last_name, email)')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!pipeline) {
+    // Try matching by email via leads table
+    var { data: lead } = await supabase
+      .from('leads')
+      .select('*, loan_pipeline(*)')
+      .eq('email', user.email)
+      .single();
+    if (lead && lead.loan_pipeline && lead.loan_pipeline.length > 0) {
+      pipeline = lead.loan_pipeline[0];
+      pipeline.borrower_name = lead.first_name + ' ' + lead.last_name;
+    }
+  }
+
+  if (pipeline) {
+    updateTrackerUI(pipeline);
+  }
+
+  var { data: docs } = await supabase
+    .from('documents')
+    .select('*')
+    .eq('lead_id', pipeline ? pipeline.lead_id : null);
+
+  if (docs && docs.length > 0) {
+    updateDocsUI(docs);
+  }
+}
+
+function updateTrackerUI(p) {
+  var stages = ['application','le_sent','docs_collected','appraisal','underwriting','ctc','closed'];
+  var stageIndex = stages.indexOf(p.stage);
+
+  var pipeSteps = document.querySelectorAll('.pipe-step');
+  pipeSteps.forEach(function(s, i) {
+    var dot = s.querySelector('.p-dot');
+    var badge = s.querySelector('.p-badge');
+    var name = s.querySelector('.p-name');
+    dot.className = 'p-dot ' + (i < stageIndex ? 'done' : i === stageIndex ? 'now' : 'wait');
+    dot.textContent = i < stageIndex ? '✓' : i === stageIndex ? '→' : i === 6 ? '🎊' : '○';
+    badge.className = 'p-badge ' + (i < stageIndex ? 'done' : i === stageIndex ? 'now' : 'wait');
+    badge.textContent = i < stageIndex ? 'Done' : i === stageIndex ? 'Active' : 'Pending';
+    if (name) name.className = 'p-name' + (i > stageIndex ? ' dim' : '');
+  });
+
+  // Update loan summary
+  var fields = {
+    '.ls-loan-amount':  p.loan_amount   ? '$' + Number(p.loan_amount).toLocaleString()   : '—',
+    '.ls-rate':         p.new_rate      ? p.new_rate + '%'                               : '—',
+    '.ls-type':         p.loan_type     || '—',
+    '.ls-payment':      p.new_payment   ? '$' + Number(p.new_payment).toLocaleString() + '/mo' : '—',
+    '.ls-closing':      p.closing_costs ? '$' + Number(p.closing_costs).toLocaleString() : '—',
+    '.ls-savings':      p.monthly_savings ? '+$' + Number(p.monthly_savings).toLocaleString() : '—'
+  };
+  Object.keys(fields).forEach(function(sel) {
+    var el = document.querySelector(sel);
+    if (el) el.textContent = fields[sel];
+  });
+}
+
+function updateDocsUI(docs) {
+  var list = document.querySelector('.doc-list');
+  if (!list) return;
+  list.innerHTML = docs.map(function(d) {
+    var icon = d.status === 'approved' ? '✅' : d.status === 'reviewed' ? '⏳' : '❗';
+    var cls  = d.status === 'approved' ? 'done' : d.status === 'reviewed' ? 'rev' : 'need';
+    var label = d.status === 'approved' ? 'Received' : d.status === 'reviewed' ? 'In Review' : 'Needed';
+    return '<div class="doc-row"><span>' + icon + '</span><div class="doc-nm">' + d.doc_type + '</div><span class="doc-s ' + cls + '">' + label + '</span></div>';
+  }).join('');
+}
+
+// ── AUTH FUNCTIONS ──
+window.chkLoginEmail = function() {
+  var email = document.getElementById('login-email').value.trim();
+  var ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  document.getElementById('login-btn').disabled = !ok;
+};
+
+window.sendMagicLink = async function() {
+  var email = document.getElementById('login-email').value.trim();
+  var errEl = document.getElementById('login-err');
+  var btn   = document.getElementById('login-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  var { error } = await supabase.auth.signInWithOtp({
+    email: email,
+    options: {
+      emailRedirectTo: window.location.href
+    }
+  });
+
+  if (error) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.classList.add('show');
+    btn.textContent = 'SEND SIGN-IN LINK →';
+    btn.disabled = false;
+    return;
+  }
+
+  document.getElementById('login-sent-to').textContent = email;
+  document.getElementById('login-step1').style.display = 'none';
+  document.getElementById('login-step2').style.display = 'block';
+};
+
+window.backToLogin = function() {
+  document.getElementById('login-step1').style.display = 'block';
+  document.getElementById('login-step2').style.display = 'none';
+  document.getElementById('login-btn').textContent = 'SEND SIGN-IN LINK →';
+  document.getElementById('login-btn').disabled = false;
+};
+
+window.doLogout = async function() {
+  await supabase.auth.signOut();
+  showPage('login');
+  setNav('tracker');
+  document.getElementById('login-step1').style.display = 'block';
+  document.getElementById('login-step2').style.display = 'none';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-btn').disabled = true;
+};
+
+// ── PAGE ROUTING ──
+window.step = 0;
 
 function setNav(id) {
   document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
   var el = document.getElementById('nb-' + id);
   if (el) el.classList.add('active');
 }
+window.setNav = setNav;
 
 function showPage(id) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
@@ -597,67 +815,76 @@ function showPage(id) {
   setNav(id);
   window.scrollTo(0, 0);
 }
+window.showPage = showPage;
 
-function goHome()    { showPage('home'); }
-function goTracker() { showPage('tracker'); }
-function goApply()   {
+window.goHome = function() { showPage('home'); };
+window.goTracker = async function() {
+  var { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await loadTrackerData(session.user);
+    showPage('tracker');
+    setNav('tracker');
+  } else {
+    showPage('login');
+    setNav('tracker');
+  }
+};
+window.goApply = function() {
   showPage('apply');
-  step = 0;
+  window.step = 0;
   document.querySelectorAll('.flow-step').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById('fs0').classList.add('active');
-}
+};
 
-function nextStep() {
-  document.getElementById('fs' + step).classList.remove('active');
-  step = step + 1;
-  document.getElementById('fs' + step).classList.add('active');
-}
-
-function prevStep() {
-  if (step > 0) {
-    document.getElementById('fs' + step).classList.remove('active');
-    step = step - 1;
-    document.getElementById('fs' + step).classList.add('active');
+window.nextStep = function() {
+  document.getElementById('fs' + window.step).classList.remove('active');
+  window.step = window.step + 1;
+  document.getElementById('fs' + window.step).classList.add('active');
+};
+window.prevStep = function() {
+  if (window.step > 0) {
+    document.getElementById('fs' + window.step).classList.remove('active');
+    window.step = window.step - 1;
+    document.getElementById('fs' + window.step).classList.add('active');
   }
-}
+};
 
-function pick(el) {
+window.pick = function(el) {
   var parent = el.parentNode;
   parent.querySelectorAll('.choice').forEach(function(c){ c.classList.remove('picked'); });
   el.classList.add('picked');
   var stepEl = el.closest('.flow-step');
   var btn = stepEl.querySelector('.cont-btn');
   if (btn) btn.disabled = false;
-}
+};
 
-function chkName() {
+window.chkName = function() {
   var ok = document.getElementById('i-first').value.trim().length > 1
         && document.getElementById('i-last').value.trim().length > 1;
   document.getElementById('btn-name').disabled = !ok;
-}
-function chkPhone() {
+};
+window.chkPhone = function() {
   var digits = document.getElementById('i-phone').value.replace(/\D/g,'');
   document.getElementById('btn-phone').disabled = digits.length < 10;
-}
-function chkEmail() {
+};
+window.chkEmail = function() {
   var v = document.getElementById('i-email').value.trim();
   document.getElementById('btn-email').disabled = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
-}
+};
 
-function syncInput() {
+window.syncInput = function() {
   var s = document.getElementById('balRng');
   var i = document.getElementById('balInp');
   i.value = '$' + parseInt(s.value).toLocaleString();
-}
-
-function syncSlider() {
+};
+window.syncSlider = function() {
   var i = document.getElementById('balInp');
   var s = document.getElementById('balRng');
   var raw = parseInt(i.value.replace(/[$,]/g, '')) || 0;
   s.value = raw;
-}
+};
 
-function submitForm() {
+window.submitForm = function() {
   var goal    = document.querySelector('#fs0 .choice.picked') ? document.querySelector('#fs0 .choice.picked').textContent : 'Not selected';
   var balance = document.getElementById('balInp') ? document.getElementById('balInp').value : 'Not provided';
   var credit  = document.querySelector('#fs2 .choice.picked') ? document.querySelector('#fs2 .choice.picked').textContent : 'Not selected';
@@ -667,23 +894,15 @@ function submitForm() {
   var email   = document.getElementById('i-email') ? document.getElementById('i-email').value : '';
 
   emailjs.send('service_hk25bcu', 'template_j9336u4', {
-    name:      first + ' ' + last,
-    phone:     phone,
-    reply_to:  email,
-    goal:      goal,
-    balance:   balance,
-    credit:    credit
-  }).then(function() {
-    console.log('Lead emailed successfully');
-  }, function(err) {
-    console.log('EmailJS error:', err);
-  });
+    name: first + ' ' + last, phone: phone, reply_to: email,
+    goal: goal, balance: balance, credit: credit
+  }).then(function(){ console.log('Lead emailed'); }, function(e){ console.log('EmailJS error:', e); });
 
   document.getElementById('fs5').classList.remove('active');
-  step = 6;
+  window.step = 6;
   document.getElementById('fs6').classList.add('active');
   showToast('Submitted!', 'A loan officer will call you within 2 hours.');
-}
+};
 
 function showToast(title, msg) {
   document.getElementById('t-title').textContent = title;
@@ -692,6 +911,7 @@ function showToast(title, msg) {
   t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 4000);
 }
+window.showToast = showToast;
 </script>
 </body>
 </html>
