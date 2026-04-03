@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     // 1. Invite user via Supabase Auth (sends magic link email automatically)
     const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
       data: { first_name: first, last_name: last },
-      redirectTo: process.env.SITE_URL || 'https://clearrate.vercel.app'
+      redirectTo: process.env.SITE_URL || 'https://northline-capital.com'
     });
 
     if (inviteError && inviteError.message !== 'User already registered') {
