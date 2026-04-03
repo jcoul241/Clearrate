@@ -652,16 +652,28 @@ var step = 0;
 // ── On page load: check if user is already logged in via magic link ──
 window.addEventListener('load', async function() {
   var hash = window.location.hash;
-  // Supabase puts the token in the URL hash after magic link click
-  if (hash && hash.includes('access_token')) {
-    var { data, error } = await supabase.auth.getSessionFromUrl();
-    if (data && data.session) {
-      await loadTrackerData(data.session.user);
-      showPage('tracker');
-      setNav('tracker');
-      // Clean URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      return;
+  var search = window.location.search;
+
+  // Supabase embeds token in hash for magic links and invites
+  var hasToken = (hash && (
+    hash.includes('access_token') ||
+    hash.includes('type=invite') ||
+    hash.includes('type=magiclink') ||
+    hash.includes('type=recovery')
+  )) || (search && search.includes('access_token'));
+
+  if (hasToken) {
+    try {
+      var { data, error } = await supabase.auth.getSessionFromUrl({ reloadSession: true });
+      if (data && data.session) {
+        await loadTrackerData(data.session.user);
+        showPage('tracker');
+        setNav('tracker');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
+    } catch(e) {
+      console.log('Session from URL error:', e);
     }
   }
   // Check existing session
