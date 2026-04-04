@@ -144,7 +144,21 @@ body{font-family:'Inter',sans-serif;background:#f4f3f0;color:#1a1a2e;min-height:
     </div>
 
     <!-- Clients table -->
-    <div class="section-title">All Clients</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+      <div class="section-title" style="margin-bottom:0">All Clients</div>
+      <div style="position:relative">
+        <input
+          id="client-search"
+          type="text"
+          placeholder="Search by name, email, goal..."
+          oninput="filterClients(this.value)"
+          style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:10px 16px 10px 38px;font-size:13px;color:var(--navy);font-family:'Inter',sans-serif;outline:none;width:280px;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--navy)'"
+          onblur="this.style.borderColor='var(--border)'"
+        >
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted);pointer-events:none">🔍</span>
+      </div>
+    </div>
     <div class="clients-table">
       <div class="ct-head">
         <div class="ct-cell">Client</div>
@@ -346,6 +360,24 @@ function renderClients(leads) {
     '</div>';
   }).join('');
 }
+
+window.filterClients = function(query) {
+  if (!query.trim()) { renderClients(allLeads); return; }
+  var q = query.toLowerCase();
+  var filtered = allLeads.filter(function(l) {
+    return (l.first_name + ' ' + l.last_name).toLowerCase().includes(q)
+      || (l.email || '').toLowerCase().includes(q)
+      || (l.goal || '').toLowerCase().includes(q)
+      || (l.credit_score || '').toLowerCase().includes(q)
+      || (l.phone || '').toLowerCase().includes(q);
+  });
+  renderClients(filtered);
+  // Show count
+  var list = document.getElementById('clients-list');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="no-clients">No clients match "' + query + '"</div>';
+  }
+};
 
 window.openClient = function(leadId) {
   var lead = allLeads.find(function(l){ return l.id === leadId; });
