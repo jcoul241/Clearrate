@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     if (!existingUser) {
       const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
         data: { first_name: first, last_name: last },
-        redirectTo: SITE_URL
+      redirectTo: SITE_URL + '?portal=loan'
       });
       if (inviteError) {
         console.error('Invite error:', inviteError);
