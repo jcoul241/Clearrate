@@ -676,26 +676,17 @@ window.addEventListener('load', async function() {
       console.log('Session from URL error:', e);
     }
   }
-  // Check for portal=loan param (redirect from invite email)
-  if (window.location.search.includes('portal=loan')) {
-    var { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      await loadTrackerData(session.user);
-      showPage('tracker');
-      setNav('tracker');
-      window.history.replaceState({}, document.title, window.location.pathname);
-      return;
-    } else {
-      showPage('login');
-      setNav('tracker');
-      window.history.replaceState({}, document.title, window.location.pathname);
-      return;
-    }
-  }
-  // Check existing session
+
+  // Check existing session — always send to tracker if logged in
   var { data: { session } } = await supabase.auth.getSession();
   if (session) {
     await loadTrackerData(session.user);
+    // If they came via portal link, show tracker
+    if (search.includes('portal=loan')) {
+      showPage('tracker');
+      setNav('tracker');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }
 });
 
