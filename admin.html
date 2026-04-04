@@ -314,7 +314,7 @@ async function showAdminPanel() {
 async function loadClients() {
   var { data: leads, error } = await supabase
     .from('leads')
-    .select('*, loan_pipeline(*), documents(*)')
+    .select('*, loan_pipeline(*), documents(*, doc_files(*))')
     .order('created_at', { ascending: false });
 
   if (error) { console.error(error); return; }
@@ -414,22 +414,42 @@ window.openClient = function(leadId) {
 function renderAdminDocs(docs) {
   var el = document.getElementById('dp-docs');
   if (!docs.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No documents yet.</div>'; return; }
+
+  var nameMap = {
+    'w2':'2024 W-2 / Tax Returns',
+    'pay_stub':'Last 2 Pay Stubs',
+    'bank_statement':'Bank Statements (2 months)',
+    'insurance':"Homeowner's Insurance Declaration",
+    'mortgage_statement':'Current Mortgage Statement',
+    'id':"Photo ID (Driver's License)"
+  };
+
   el.innerHTML = docs.map(function(d) {
-    var hasFile = d.storage_path && d.storage_path !== 'pending' && (d.status === 'uploaded' || d.status === 'reviewed' || d.status === 'approved');
-    var dlBtn = hasFile
-      ? '<button class="doc-dl-btn" onclick="downloadDoc(\''+d.storage_path+'\',\''+d.file_name+'\')">⬇ Download</button>'
-      : '<span style="font-size:11px;color:var(--muted)">Not uploaded</span>';
-    return '<div class="doc-admin-row">' +
-      '<div class="doc-admin-name">'+d.file_name+'</div>' +
-      '<select class="doc-admin-select" id="doc-sel-'+d.id+'">' +
-        '<option value="pending_upload"'+(d.status==='pending_upload'?' selected':'')+'>Needed</option>' +
-        '<option value="uploaded"'+(d.status==='uploaded'?' selected':'')+'>Uploaded</option>' +
-        '<option value="reviewed"'+(d.status==='reviewed'?' selected':'')+'>In Review</option>' +
-        '<option value="approved"'+(d.status==='approved'?' selected':'')+'>Approved</option>' +
-        '<option value="rejected"'+(d.status==='rejected'?' selected':'')+'>Rejected</option>' +
-      '</select>' +
-      '<button class="doc-save-btn" onclick="saveDocStatus(\''+d.id+'\')">Save</button>' +
-      dlBtn +
+    var displayName = nameMap[d.doc_type] || d.doc_type;
+    var files = d.doc_files || [];
+    var fileLinks = files.length > 0
+      ? files.map(function(f, i) {
+          return '<div style="display:flex;align-items:center;gap:6px;margin-top:5px">' +
+            '<span style="font-size:11px;color:var(--muted)">File '+(i+1)+':</span>' +
+            '<span style="font-size:11px;color:var(--navy);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+f.file_name+'</span>' +
+            '<button class="doc-dl-btn" onclick="downloadDoc(\''+f.storage_path+'\',\''+f.file_name+'\')">⬇</button>' +
+          '</div>';
+        }).join('')
+      : '<div style="font-size:11px;color:var(--muted);margin-top:4px">No files uploaded yet</div>';
+
+    return '<div class="doc-admin-row" style="flex-direction:column;align-items:stretch">' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<div class="doc-admin-name" style="flex:1;font-weight:600">'+displayName+'</div>' +
+        '<select class="doc-admin-select" id="doc-sel-'+d.id+'">' +
+          '<option value="pending_upload"'+(d.status==='pending_upload'?' selected':'')+'>Needed</option>' +
+          '<option value="uploaded"'+(d.status==='uploaded'?' selected':'')+'>Uploaded</option>' +
+          '<option value="reviewed"'+(d.status==='reviewed'?' selected':'')+'>In Review</option>' +
+          '<option value="approved"'+(d.status==='approved'?' selected':'')+'>Approved</option>' +
+          '<option value="rejected"'+(d.status==='rejected'?' selected':'')+'>Rejected</option>' +
+        '</select>' +
+        '<button class="doc-save-btn" onclick="saveDocStatus(\''+d.id+'\')">Save</button>' +
+      '</div>' +
+      '<div style="padding-left:4px">'+fileLinks+'</div>' +
     '</div>';
   }).join('');
 }
