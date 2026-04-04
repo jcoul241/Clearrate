@@ -80,7 +80,7 @@ export default async function handler(req, res) {
     // Fetch documents
     const { data: documents } = await supabaseAdmin
       .from('documents')
-      .select('*')
+      .select('*, doc_files(*)')
       .eq('lead_id', lead.id)
       .order('created_at', { ascending: true });
 
