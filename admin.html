@@ -89,6 +89,8 @@ body{font-family:'Inter',sans-serif;background:#f4f3f0;color:#1a1a2e;min-height:
 .doc-admin-name{flex:1;font-size:12px}
 .doc-admin-select{font-size:12px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--navy);font-family:'Inter',sans-serif;cursor:pointer}
 .doc-save-btn{font-size:11px;font-weight:600;color:var(--green);background:rgba(42,122,79,.08);border:1px solid rgba(42,122,79,.2);padding:4px 8px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif}
+.doc-dl-btn{font-size:11px;font-weight:600;color:var(--navy);background:var(--cream2);border:1px solid var(--border);padding:4px 8px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+.doc-dl-btn:hover{border-color:var(--navy)}
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:#fff;border:1px solid var(--gold);border-radius:12px;padding:14px 20px;font-size:14px;box-shadow:0 8px 32px rgba(11,31,58,.15);transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);max-width:280px}
 .toast.show{transform:translateY(0);opacity:1}
 .toast strong{color:var(--gold);display:block;margin-bottom:3px}
@@ -381,6 +383,10 @@ function renderAdminDocs(docs) {
   var el = document.getElementById('dp-docs');
   if (!docs.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No documents yet.</div>'; return; }
   el.innerHTML = docs.map(function(d) {
+    var hasFile = d.storage_path && d.storage_path !== 'pending' && (d.status === 'uploaded' || d.status === 'reviewed' || d.status === 'approved');
+    var dlBtn = hasFile
+      ? '<button class="doc-dl-btn" onclick="downloadDoc(\''+d.storage_path+'\',\''+d.file_name+'\')">⬇ Download</button>'
+      : '<span style="font-size:11px;color:var(--muted)">Not uploaded</span>';
     return '<div class="doc-admin-row">' +
       '<div class="doc-admin-name">'+d.file_name+'</div>' +
       '<select class="doc-admin-select" id="doc-sel-'+d.id+'">' +
@@ -391,9 +397,28 @@ function renderAdminDocs(docs) {
         '<option value="rejected"'+(d.status==='rejected'?' selected':'')+'>Rejected</option>' +
       '</select>' +
       '<button class="doc-save-btn" onclick="saveDocStatus(\''+d.id+'\')">Save</button>' +
+      dlBtn +
     '</div>';
   }).join('');
 }
+
+window.downloadDoc = async function(storagePath, fileName) {
+  try {
+    var { data, error } = await supabase.storage
+      .from('loan-documents')
+      .createSignedUrl(storagePath, 300); // 5 minute signed URL
+    if (error) { showToast('Error', 'Could not get download link'); return; }
+    var a = document.createElement('a');
+    a.href = data.signedUrl;
+    a.download = fileName;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch(e) {
+    showToast('Error', 'Download failed');
+  }
+};
 
 window.saveDocStatus = async function(docId) {
   var sel = document.getElementById('doc-sel-' + docId);
