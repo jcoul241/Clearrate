@@ -183,6 +183,50 @@ footer{background:var(--navy);padding:44px 40px 28px;border-top:1px solid rgba(2
 .login-btn:disabled{background:#ccc;cursor:not-allowed}
 .login-footer{text-align:center;font-size:13px;color:var(--muted);margin-top:20px}
 
+/* ── INTERACTIVE DASHBOARD ── */
+.dash-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+.dash-dl-btn{background:var(--navy);color:#fff;font-size:13px;font-weight:600;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.dash-dl-btn:hover{background:var(--navy2)}
+.dash-signout-btn{font-size:13px;font-weight:600;color:var(--muted);background:var(--cream2);border:1px solid var(--border);padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif}
+.dash-progress-wrap{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow)}
+.dash-progress-bar{width:100%;height:8px;background:#e8e2d8;border-radius:99px;overflow:hidden;margin-bottom:16px}
+.dash-progress-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--navy2));border-radius:99px;transition:width .8s ease}
+.dash-stages{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.dash-stage{font-size:11px;color:var(--muted);font-weight:500;text-align:center;flex:1;min-width:60px}
+.dash-stage.active{color:var(--navy);font-weight:700}
+.dash-stage.done{color:var(--gold)}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.dash-col{display:flex;flex-direction:column;gap:16px}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);position:relative}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:28px;height:28px;border-radius:50%;border:2px solid #ddd;background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.tl-dot.done{background:var(--gold);border-color:var(--gold);color:#fff}
+.tl-dot.done::after{content:'✓';font-weight:700}
+.tl-dot.now{background:rgba(11,31,58,.1);border-color:var(--navy);animation:rpl 2s infinite}
+.tl-dot.now::after{content:'→';font-size:10px;color:var(--navy);font-weight:700}
+.tl-content{flex:1}
+.tl-name{font-size:13px;font-weight:600;color:var(--navy)}
+.tl-name.dim{color:var(--muted);font-weight:400}
+.tl-date{font-size:11px;color:var(--muted);margin-top:2px}
+.tl-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.tl-badge.done{background:rgba(201,150,60,.12);color:var(--gold)}
+.tl-badge.now{background:rgba(42,122,79,.1);color:#2a7a4f}
+.tl-badge.wait{background:var(--cream2);color:var(--muted)}
+.lo-note{background:var(--cream);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 14px;font-size:14px;color:var(--navy);line-height:1.6}
+.doc-row{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--cream);border:1px solid var(--border);border-radius:9px;margin-bottom:8px;transition:all .2s}
+.doc-row:last-child{margin-bottom:0}
+.doc-nm{flex:1;font-size:13px;color:var(--navy)}
+.doc-s{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.doc-s.done{background:rgba(42,122,79,.1);color:#2a7a4f}
+.doc-s.need{background:#fff5f5;color:#9b2c2c}
+.doc-s.rev{background:rgba(201,150,60,.1);color:var(--gold)}
+.doc-s.uploaded{background:rgba(42,122,79,.08);color:#2a7a4f}
+.doc-upload-btn{font-size:11px;font-weight:600;color:var(--navy);background:#fff;border:1px solid var(--border);padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all .2s}
+.doc-upload-btn:hover{border-color:var(--navy);background:var(--cream)}
+.doc-upload-btn.uploaded{color:#2a7a4f;border-color:rgba(42,122,79,.3)}
+@media(max-width:800px){.dash-grid{grid-template-columns:1fr}.dash-stages{display:none}}
+
 /* TRACKER */
 .tracker-wrap{max-width:960px;margin:0 auto;padding:48px 40px}
 .tracker-layout{display:grid;grid-template-columns:290px 1fr;gap:20px;align-items:start}
@@ -585,57 +629,153 @@ footer{background:var(--navy);padding:44px 40px 28px;border-top:1px solid rgba(2
 <!-- TRACKER -->
 <div class="page" id="page-tracker">
   <div class="tracker-wrap">
-    <div style="margin-bottom:30px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px">
+
+    <!-- Header -->
+    <div class="dash-header">
       <div>
-        <div class="sec-tag">Loan Status</div>
-        <h2 class="sec-title">Your refinance dashboard</h2>
+        <div class="sec-tag">Loan Portal</div>
+        <h2 class="sec-title" id="dash-greeting">Your refinance dashboard</h2>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px;" id="dash-sub">Here's a live view of your loan status.</p>
       </div>
-      <button onclick="doLogout()" style="font-size:13px;font-weight:600;color:var(--muted);background:var(--cream2);border:1px solid var(--border);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Sign out</button>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <button class="dash-dl-btn" id="btn-download-le" onclick="downloadLE()">⬇ Loan Estimate</button>
+        <button onclick="doLogout()" class="dash-signout-btn">Sign out</button>
+      </div>
     </div>
-    <div class="tracker-layout">
-      <div class="pipe-card">
-        <div class="pipe-title">Loan Pipeline</div>
-        <div class="pipe-step"><div class="p-dot done">✓</div><div><div class="p-name">Application Received</div><div class="p-date">Mar 17, 2026</div></div><span class="p-badge done">Done</span></div>
-        <div class="pipe-step"><div class="p-dot done">✓</div><div><div class="p-name">Loan Estimate Sent</div><div class="p-date">Mar 18, 2026</div></div><span class="p-badge done">Done</span></div>
-        <div class="pipe-step"><div class="p-dot now">→</div><div><div class="p-name">Document Collection</div><div class="p-date">In Progress</div></div><span class="p-badge now">Active</span></div>
-        <div class="pipe-step"><div class="p-dot wait">○</div><div><div class="p-name dim">Appraisal Ordered</div><div class="p-date">Est. Mar 25</div></div><span class="p-badge wait">Pending</span></div>
-        <div class="pipe-step"><div class="p-dot wait">○</div><div><div class="p-name dim">Underwriting</div><div class="p-date">Est. Apr 1</div></div><span class="p-badge wait">Pending</span></div>
-        <div class="pipe-step"><div class="p-dot wait">○</div><div><div class="p-name dim">Clear to Close</div><div class="p-date">Est. Apr 10</div></div><span class="p-badge wait">Pending</span></div>
-        <div class="pipe-step"><div class="p-dot wait">🎊</div><div><div class="p-name dim">Closing Day</div><div class="p-date">Est. Apr 15</div></div><span class="p-badge wait">Pending</span></div>
+
+    <!-- Progress bar -->
+    <div class="dash-progress-wrap">
+      <div class="dash-progress-bar">
+        <div class="dash-progress-fill" id="dash-progress-fill" style="width:14%"></div>
       </div>
-      <div class="details">
+      <div class="dash-stages">
+        <div class="dash-stage active" id="dstage-0">Application</div>
+        <div class="dash-stage" id="dstage-1">Loan Estimate</div>
+        <div class="dash-stage" id="dstage-2">Documents</div>
+        <div class="dash-stage" id="dstage-3">Appraisal</div>
+        <div class="dash-stage" id="dstage-4">Underwriting</div>
+        <div class="dash-stage" id="dstage-5">Clear to Close</div>
+        <div class="dash-stage" id="dstage-6">Closed 🎊</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+
+      <!-- LEFT: Timeline -->
+      <div class="dash-col">
         <div class="det-card">
-          <h3>📄 Document Checklist</h3>
-          <div class="doc-list">
-            <div class="doc-row"><span>✅</span><div class="doc-nm">2024 W-2 / Tax Returns</div><span class="doc-s done">Received</span></div>
-            <div class="doc-row"><span>✅</span><div class="doc-nm">Last 2 Pay Stubs</div><span class="doc-s done">Received</span></div>
-            <div class="doc-row"><span>✅</span><div class="doc-nm">Bank Statements (2 months)</div><span class="doc-s done">Received</span></div>
-            <div class="doc-row"><span>⏳</span><div class="doc-nm">Homeowner's Insurance Declaration</div><span class="doc-s rev">In Review</span></div>
-            <div class="doc-row"><span>❗</span><div class="doc-nm">Current Mortgage Statement</div><span class="doc-s need">Needed</span></div>
-            <div class="doc-row"><span>❗</span><div class="doc-nm">Photo ID (Driver's License)</div><span class="doc-s need">Needed</span></div>
+          <h3>📅 Loan Timeline</h3>
+          <div class="timeline" id="dash-timeline">
+            <div class="tl-item" id="tl-0">
+              <div class="tl-dot done"></div>
+              <div class="tl-content">
+                <div class="tl-name">Application Received</div>
+                <div class="tl-date" id="tl-date-0">—</div>
+              </div>
+              <span class="tl-badge done">Done</span>
+            </div>
+            <div class="tl-item" id="tl-1">
+              <div class="tl-dot" id="tl-dot-1"></div>
+              <div class="tl-content">
+                <div class="tl-name">Loan Estimate Sent</div>
+                <div class="tl-date" id="tl-date-1">Pending</div>
+              </div>
+              <span class="tl-badge wait" id="tl-badge-1">Pending</span>
+            </div>
+            <div class="tl-item" id="tl-2">
+              <div class="tl-dot" id="tl-dot-2"></div>
+              <div class="tl-content">
+                <div class="tl-name">Document Collection</div>
+                <div class="tl-date" id="tl-date-2">Pending</div>
+              </div>
+              <span class="tl-badge wait" id="tl-badge-2">Pending</span>
+            </div>
+            <div class="tl-item" id="tl-3">
+              <div class="tl-dot" id="tl-dot-3"></div>
+              <div class="tl-content">
+                <div class="tl-name">Appraisal</div>
+                <div class="tl-date" id="tl-date-3">Pending</div>
+              </div>
+              <span class="tl-badge wait" id="tl-badge-3">Pending</span>
+            </div>
+            <div class="tl-item" id="tl-4">
+              <div class="tl-dot" id="tl-dot-4"></div>
+              <div class="tl-content">
+                <div class="tl-name">Underwriting</div>
+                <div class="tl-date" id="tl-date-4">Pending</div>
+              </div>
+              <span class="tl-badge wait" id="tl-badge-4">Pending</span>
+            </div>
+            <div class="tl-item" id="tl-5">
+              <div class="tl-dot" id="tl-dot-5"></div>
+              <div class="tl-content">
+                <div class="tl-name">Clear to Close</div>
+                <div class="tl-date" id="tl-date-5">Pending</div>
+              </div>
+              <span class="tl-badge wait" id="tl-badge-5">Pending</span>
+            </div>
+            <div class="tl-item" id="tl-6">
+              <div class="tl-dot" id="tl-dot-6"></div>
+              <div class="tl-content">
+                <div class="tl-name">Closing Day 🎊</div>
+                <div class="tl-date" id="tl-date-6">Pending</div>
+              </div>
+              <span class="tl-badge wait" id="tl-badge-6">Pending</span>
+            </div>
           </div>
         </div>
-        <div class="det-card">
+
+        <!-- Loan Summary -->
+        <div class="det-card" id="card-loan-summary" style="display:none">
           <h3>💼 Loan Summary</h3>
           <div class="ls-grid">
-            <div class="ls-it"><div class="ls-lbl">Loan Amount</div><div class="ls-val ls-loan-amount">$538,000</div></div>
-            <div class="ls-it"><div class="ls-lbl">New Rate</div><div class="ls-val g ls-rate">5.875%</div></div>
-            <div class="ls-it"><div class="ls-lbl">Loan Type</div><div class="ls-val ls-type">15-yr Fixed</div></div>
-            <div class="ls-it"><div class="ls-lbl">New Payment</div><div class="ls-val g ls-payment">$4,512/mo</div></div>
-            <div class="ls-it"><div class="ls-lbl">Closing Costs</div><div class="ls-val ls-closing">$8,500</div></div>
-            <div class="ls-it"><div class="ls-lbl">Monthly Savings</div><div class="ls-val g ls-savings">+$387</div></div>
+            <div class="ls-it"><div class="ls-lbl">Loan Amount</div><div class="ls-val ls-loan-amount">—</div></div>
+            <div class="ls-it"><div class="ls-lbl">New Rate</div><div class="ls-val g ls-rate">—</div></div>
+            <div class="ls-it"><div class="ls-lbl">Loan Type</div><div class="ls-val ls-type">—</div></div>
+            <div class="ls-it"><div class="ls-lbl">New Payment</div><div class="ls-val g ls-payment">—</div></div>
+            <div class="ls-it"><div class="ls-lbl">Closing Costs</div><div class="ls-val ls-closing">—</div></div>
+            <div class="ls-it"><div class="ls-lbl">Monthly Savings</div><div class="ls-val g ls-savings">—</div></div>
           </div>
         </div>
+      </div>
+
+      <!-- RIGHT: Documents + Team -->
+      <div class="dash-col">
+
+        <!-- Notes from loan officer -->
+        <div class="det-card" id="card-notes" style="display:none">
+          <h3>💬 Note from your loan officer</h3>
+          <div class="lo-note" id="lo-note-text"></div>
+        </div>
+
+        <!-- Document upload -->
+        <div class="det-card">
+          <h3>📄 Document Checklist</h3>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Upload each document below. Your team will review and confirm receipt.</p>
+          <div class="doc-list" id="dash-doc-list">
+            <div class="doc-row">
+              <span>⏳</span>
+              <div class="doc-nm">Loading documents...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loan Team -->
         <div class="det-card">
           <h3>📞 Your Loan Team</h3>
           <div class="tm-row"><div class="tm-av">JC</div><div><div class="tm-name">John Coulolias</div><div class="tm-role">Founder &amp; Managing Director · NMLS #XXXXXX</div></div><div class="tm-ph">(949) 555-XXXX</div></div>
           <div class="tm-row"><div class="tm-av">SM</div><div><div class="tm-name">Sarah M.</div><div class="tm-role">Senior Loan Processor</div></div></div>
           <div class="tm-row"><div class="tm-av">RT</div><div><div class="tm-name">Ryan T.</div><div class="tm-role">Underwriting Coordinator</div></div></div>
         </div>
+
       </div>
     </div>
   </div>
 </div>
+
+<!-- Hidden file input for document upload -->
+<input type="file" id="doc-file-input" style="display:none" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleDocUpload(this)">
+
 
 <div class="toast" id="toast"><strong id="t-title"></strong><span id="t-msg"></span></div>
 
@@ -717,47 +857,124 @@ async function loadTrackerData(user) {
   }
 }
 
+var currentDocId = null;
+var currentLeadId = null;
+
 function updateTrackerUI(p) {
   var stages = ['application','le_sent','docs_collected','appraisal','underwriting','ctc','closed'];
-  var stageIndex = stages.indexOf(p.stage);
+  var stageIdx = stages.indexOf(p.stage);
+  if (stageIdx < 0) stageIdx = 0;
 
-  var pipeSteps = document.querySelectorAll('.pipe-step');
-  pipeSteps.forEach(function(s, i) {
-    var dot = s.querySelector('.p-dot');
-    var badge = s.querySelector('.p-badge');
-    var name = s.querySelector('.p-name');
-    dot.className = 'p-dot ' + (i < stageIndex ? 'done' : i === stageIndex ? 'now' : 'wait');
-    dot.textContent = i < stageIndex ? '✓' : i === stageIndex ? '→' : i === 6 ? '🎊' : '○';
-    badge.className = 'p-badge ' + (i < stageIndex ? 'done' : i === stageIndex ? 'now' : 'wait');
-    badge.textContent = i < stageIndex ? 'Done' : i === stageIndex ? 'Active' : 'Pending';
-    if (name) name.className = 'p-name' + (i > stageIndex ? ' dim' : '');
-  });
+  var pct = Math.round((stageIdx / (stages.length - 1)) * 100);
+  var fill = document.getElementById('dash-progress-fill');
+  if (fill) fill.style.width = Math.max(pct, 5) + '%';
 
-  // Update loan summary
-  var fields = {
-    '.ls-loan-amount':  p.loan_amount   ? '$' + Number(p.loan_amount).toLocaleString()   : '—',
-    '.ls-rate':         p.new_rate      ? p.new_rate + '%'                               : '—',
-    '.ls-type':         p.loan_type     || '—',
-    '.ls-payment':      p.new_payment   ? '$' + Number(p.new_payment).toLocaleString() + '/mo' : '—',
-    '.ls-closing':      p.closing_costs ? '$' + Number(p.closing_costs).toLocaleString() : '—',
-    '.ls-savings':      p.monthly_savings ? '+$' + Number(p.monthly_savings).toLocaleString() : '—'
-  };
-  Object.keys(fields).forEach(function(sel) {
-    var el = document.querySelector(sel);
-    if (el) el.textContent = fields[sel];
-  });
+  for (var i = 0; i < stages.length; i++) {
+    var el = document.getElementById('dstage-' + i);
+    if (!el) continue;
+    el.className = 'dash-stage' + (i < stageIdx ? ' done' : i === stageIdx ? ' active' : '');
+  }
+
+  var dateMap = { 0:p.application_date, 1:p.le_sent_date, 2:null, 3:p.appraisal_date, 4:p.uw_submitted_date, 5:p.ctc_date, 6:p.closing_date };
+
+  for (var j = 0; j <= 6; j++) {
+    var dot   = document.getElementById('tl-dot-' + j);
+    var badge = document.getElementById('tl-badge-' + j);
+    var date  = document.getElementById('tl-date-' + j);
+    var name  = document.querySelector('#tl-' + j + ' .tl-name');
+    if (!dot) continue;
+    if (j < stageIdx) {
+      dot.className = 'tl-dot done';
+      if (badge) { badge.className = 'tl-badge done'; badge.textContent = 'Done'; }
+      if (name) name.className = 'tl-name';
+    } else if (j === stageIdx) {
+      dot.className = 'tl-dot now';
+      if (badge) { badge.className = 'tl-badge now'; badge.textContent = 'In Progress'; }
+      if (name) name.className = 'tl-name';
+    } else {
+      dot.className = 'tl-dot';
+      if (badge) { badge.className = 'tl-badge wait'; badge.textContent = 'Pending'; }
+      if (name) name.className = 'tl-name dim';
+    }
+    if (date) {
+      var d = dateMap[j];
+      date.textContent = d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : (j <= stageIdx ? 'In progress' : 'Pending');
+    }
+  }
+
+  var dot0 = document.querySelector('#tl-0 .tl-dot');
+  var badge0 = document.getElementById('tl-badge-0');
+  if (dot0) dot0.className = 'tl-dot done';
+  if (badge0) { badge0.className = 'tl-badge done'; badge0.textContent = 'Done'; }
+  var date0 = document.getElementById('tl-date-0');
+  if (date0 && p.application_date) date0.textContent = new Date(p.application_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  if (p.loan_amount || p.new_rate || p.new_payment) {
+    var card = document.getElementById('card-loan-summary');
+    if (card) card.style.display = 'block';
+    var fields = {
+      '.ls-loan-amount': p.loan_amount    ? '$'+Number(p.loan_amount).toLocaleString()         : '—',
+      '.ls-rate':        p.new_rate       ? p.new_rate+'%'                                     : '—',
+      '.ls-type':        p.loan_type      || '—',
+      '.ls-payment':     p.new_payment    ? '$'+Number(p.new_payment).toLocaleString()+'/mo'   : '—',
+      '.ls-closing':     p.closing_costs  ? '$'+Number(p.closing_costs).toLocaleString()       : '—',
+      '.ls-savings':     p.monthly_savings? '+$'+Number(p.monthly_savings).toLocaleString()    : '—'
+    };
+    Object.keys(fields).forEach(function(sel){ var el=document.querySelector(sel); if(el) el.textContent=fields[sel]; });
+  }
+
+  if (p.notes) {
+    var noteCard = document.getElementById('card-notes');
+    var noteText = document.getElementById('lo-note-text');
+    if (noteCard) noteCard.style.display = 'block';
+    if (noteText) noteText.textContent = p.notes;
+  }
+
+  var dlBtn = document.getElementById('btn-download-le');
+  if (dlBtn) dlBtn.style.display = stageIdx >= 1 ? 'inline-flex' : 'none';
+
+  currentLeadId = p.lead_id;
 }
 
 function updateDocsUI(docs) {
-  var list = document.querySelector('.doc-list');
+  var list = document.getElementById('dash-doc-list');
   if (!list) return;
   list.innerHTML = docs.map(function(d) {
-    var icon = d.status === 'approved' ? '✅' : d.status === 'reviewed' ? '⏳' : '❗';
-    var cls  = d.status === 'approved' ? 'done' : d.status === 'reviewed' ? 'rev' : 'need';
-    var label = d.status === 'approved' ? 'Received' : d.status === 'reviewed' ? 'In Review' : 'Needed';
-    return '<div class="doc-row"><span>' + icon + '</span><div class="doc-nm">' + d.doc_type + '</div><span class="doc-s ' + cls + '">' + label + '</span></div>';
+    var icon  = d.status === 'approved' ? '✅' : (d.status === 'reviewed' || d.status === 'uploaded') ? '⏳' : '❗';
+    var cls   = d.status === 'approved' ? 'done' : (d.status === 'reviewed' || d.status === 'uploaded') ? 'rev' : 'need';
+    var label = d.status === 'approved' ? 'Received' : d.status === 'reviewed' ? 'In Review' : d.status === 'uploaded' ? 'Uploaded ✓' : 'Needed';
+    var canUpload = d.status === 'pending_upload' || d.status === 'needed';
+    var btn = canUpload
+      ? '<button class="doc-upload-btn" onclick="triggerUpload(\''+d.id+'\')">Upload</button>'
+      : '<button class="doc-upload-btn" disabled style="opacity:.5">'+(d.status==='uploaded'?'Uploaded':'Received')+'</button>';
+    return '<div class="doc-row"><span style="font-size:16px">'+icon+'</span><div class="doc-nm">'+d.file_name+'</div><span class="doc-s '+cls+'">'+label+'</span>'+btn+'</div>';
   }).join('');
 }
+
+window.triggerUpload = function(docId) { currentDocId = docId; document.getElementById('doc-file-input').click(); };
+
+window.handleDocUpload = async function(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  showToast('Uploading...', file.name);
+  try {
+    var { data:{ session } } = await supabase.auth.getSession();
+    if (!session) return;
+    var path = session.user.id+'/'+currentDocId+'/'+file.name;
+    var { error:upErr } = await supabase.storage.from('loan-documents').upload(path, file, {upsert:true});
+    if (upErr) { showToast('Upload failed', 'Please try again'); return; }
+    await supabase.from('documents').update({status:'uploaded',storage_path:path,file_name:file.name,file_type:file.type}).eq('id',currentDocId);
+    showToast('Uploaded! ✓', file.name+' sent to your loan team.');
+    var resp = await fetch('/api/get-loan',{headers:{'Authorization':'Bearer '+session.access_token}});
+    var data = await resp.json();
+    if (data.documents) updateDocsUI(data.documents);
+  } catch(e) { showToast('Upload failed','Please try again'); }
+  input.value = '';
+};
+
+window.downloadLE = function() { showToast('Coming soon','Your loan officer will email your Loan Estimate shortly.'); };
+
+
 
 // ── AUTH FUNCTIONS ──
 window.chkLoginEmail = function() {
