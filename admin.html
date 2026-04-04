@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Northline Capital — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f4f3f0;color:#1a1a2e;min-height:100vh}
+:root{--navy:#0b1f3a;--navy2:#1a3560;--gold:#c9963c;--gold2:#e8b96a;--cream:#faf8f4;--cream2:#f3efe8;--border:#e8e2d8;--muted:#6b7280;--white:#fff;--green:#2a7a4f;--red:#9b2c2c}
+
+/* LOGIN */
+#admin-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.al-box{background:#fff;border:1px solid var(--border);border-radius:20px;padding:48px 44px;width:100%;max-width:400px;box-shadow:0 12px 48px rgba(11,31,58,.15)}
+.al-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.al-icon{width:40px;height:40px;border-radius:9px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--navy)}
+.al-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.al-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.al-inp{width:100%;background:var(--cream);border:2px solid var(--border);border-radius:10px;padding:13px 16px;font-size:15px;color:var(--navy);font-family:'Inter',sans-serif;outline:none;margin-bottom:14px}
+.al-inp:focus{border-color:var(--navy)}
+.al-btn{width:100%;background:var(--navy);color:#fff;font-weight:700;font-size:14px;padding:14px;border-radius:10px;border:none;cursor:pointer;font-family:'Inter',sans-serif}
+.al-btn:hover{background:var(--navy2)}
+.al-err{font-size:13px;color:var(--red);background:#fff5f5;border:1px solid #f7c1c1;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:none}
+.al-err.show{display:block}
+
+/* ADMIN PANEL */
+#admin-panel{display:none}
+.admin-nav{background:var(--navy);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(201,150,60,.2);position:sticky;top:0;z-index:100}
+.admin-logo{display:flex;align-items:center;gap:10px}
+.admin-logo-icon{width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:800;color:var(--navy)}
+.admin-logo-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff}
+.admin-logo-badge{font-size:10px;color:var(--gold2);background:rgba(201,150,60,.15);border:1px solid rgba(201,150,60,.3);padding:2px 8px;border-radius:99px;margin-left:8px}
+.admin-signout{font-size:13px;color:rgba(255,255,255,.6);background:none;border:1px solid rgba(255,255,255,.2);padding:7px 14px;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif}
+.admin-signout:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+
+.admin-body{max-width:1200px;margin:0 auto;padding:32px}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;color:var(--navy)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+
+/* CLIENTS TABLE */
+.section-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px}
+.clients-table{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(11,31,58,.06)}
+.ct-head{display:grid;grid-template-columns:2fr 1.5fr 1.5fr 1fr 1fr 100px;gap:0;background:var(--cream2);border-bottom:1px solid var(--border)}
+.ct-cell{padding:12px 16px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ct-row{display:grid;grid-template-columns:2fr 1.5fr 1.5fr 1fr 1fr 100px;gap:0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.ct-row:last-child{border-bottom:none}
+.ct-row:hover{background:var(--cream)}
+.ct-d{padding:14px 16px;font-size:13px;color:var(--navy);display:flex;align-items:center}
+.ct-name{font-weight:600}
+.ct-email{font-size:12px;color:var(--muted)}
+.stage-pill{font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;white-space:nowrap}
+.stage-application{background:rgba(11,31,58,.08);color:var(--navy)}
+.stage-le_sent{background:rgba(201,150,60,.12);color:var(--gold)}
+.stage-docs_collected{background:rgba(201,150,60,.15);color:#c9963c}
+.stage-appraisal{background:rgba(59,130,246,.1);color:#1e40af}
+.stage-underwriting{background:rgba(124,58,237,.1);color:#6d28d9}
+.stage-ctc{background:rgba(42,122,79,.1);color:var(--green)}
+.stage-closed{background:rgba(42,122,79,.15);color:var(--green)}
+.ct-action-btn{font-size:12px;font-weight:600;color:var(--navy);background:var(--cream2);border:1px solid var(--border);padding:6px 12px;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif}
+.ct-action-btn:hover{border-color:var(--navy)}
+.no-clients{padding:48px;text-align:center;color:var(--muted);font-size:14px}
+
+/* DETAIL PANEL */
+#detail-panel{display:none;margin-top:24px;background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(11,31,58,.06)}
+.dp-header{background:var(--navy);padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+.dp-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:#fff}
+.dp-email{font-size:13px;color:rgba(255,255,255,.6);margin-top:2px}
+.dp-close{font-size:20px;color:rgba(255,255,255,.6);background:none;border:none;cursor:pointer;line-height:1}
+.dp-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.dp-section{padding:22px;border-right:1px solid var(--border)}
+.dp-section:last-child{border-right:none}
+.dp-sec-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.dp-field{margin-bottom:12px}
+.dp-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.dp-input{width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--navy);font-family:'Inter',sans-serif;outline:none}
+.dp-input:focus{border-color:var(--navy);background:#fff}
+.dp-select{width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--navy);font-family:'Inter',sans-serif;outline:none}
+.dp-select:focus{border-color:var(--navy)}
+.dp-save-btn{width:100%;background:var(--navy);color:#fff;font-weight:700;font-size:13px;padding:11px;border-radius:8px;border:none;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px;transition:all .2s}
+.dp-save-btn:hover{background:var(--navy2)}
+.dp-save-btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy)}
+.doc-admin-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.doc-admin-row:last-child{border-bottom:none}
+.doc-admin-name{flex:1;font-size:12px}
+.doc-admin-select{font-size:12px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--navy);font-family:'Inter',sans-serif;cursor:pointer}
+.doc-save-btn{font-size:11px;font-weight:600;color:var(--green);background:rgba(42,122,79,.08);border:1px solid rgba(42,122,79,.2);padding:4px 8px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif}
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:#fff;border:1px solid var(--gold);border-radius:12px;padding:14px 20px;font-size:14px;box-shadow:0 8px 32px rgba(11,31,58,.15);transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);max-width:280px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast strong{color:var(--gold);display:block;margin-bottom:3px}
+@media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr}.ct-head,.ct-row{grid-template-columns:1fr 1fr 1fr 80px}.dp-body{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ADMIN LOGIN -->
+<div id="admin-login">
+  <div class="al-box">
+    <div class="al-logo">
+      <div class="al-icon">N</div>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--navy)">Northline Capital</div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Admin Portal</div>
+      </div>
+    </div>
+    <div class="al-title">Sign in</div>
+    <div class="al-sub">Enter your admin email to receive a secure sign-in link.</div>
+    <div class="al-err" id="al-err"></div>
+    <input class="al-inp" id="al-email" type="email" placeholder="your@email.com" oninput="chkAdminEmail()">
+    <button class="al-btn" id="al-btn" onclick="adminLogin()" disabled>SEND SIGN-IN LINK →</button>
+    <div id="al-sent" style="display:none;text-align:center;padding-top:20px">
+      <div style="font-size:36px;margin-bottom:12px">📬</div>
+      <div style="font-size:14px;font-weight:600;color:var(--navy)">Check your email</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Click the link to access the admin panel.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel">
+  <nav class="admin-nav">
+    <div class="admin-logo">
+      <div class="admin-logo-icon">N</div>
+      <div class="admin-logo-name">Northline Capital</div>
+      <span class="admin-logo-badge">Admin</span>
+    </div>
+    <button class="admin-signout" onclick="adminSignOut()">Sign out</button>
+  </nav>
+
+  <div class="admin-body">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total Clients</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-active">—</div><div class="stat-label">Active Loans</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-docs">—</div><div class="stat-label">Docs Needed</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-closed">—</div><div class="stat-label">Closed This Month</div></div>
+    </div>
+
+    <!-- Clients table -->
+    <div class="section-title">All Clients</div>
+    <div class="clients-table">
+      <div class="ct-head">
+        <div class="ct-cell">Client</div>
+        <div class="ct-cell">Goal</div>
+        <div class="ct-cell">Loan Balance</div>
+        <div class="ct-cell">Credit</div>
+        <div class="ct-cell">Stage</div>
+        <div class="ct-cell"></div>
+      </div>
+      <div id="clients-list"><div class="no-clients">Loading clients...</div></div>
+    </div>
+
+    <!-- Detail panel -->
+    <div id="detail-panel">
+      <div class="dp-header">
+        <div>
+          <div class="dp-name" id="dp-name">—</div>
+          <div class="dp-email" id="dp-email">—</div>
+        </div>
+        <button class="dp-close" onclick="closeDetail()">✕</button>
+      </div>
+      <div class="dp-body">
+
+        <!-- Pipeline stage -->
+        <div class="dp-section">
+          <div class="dp-sec-title">Pipeline Stage</div>
+          <div class="dp-field">
+            <div class="dp-label">Current stage</div>
+            <select class="dp-select" id="dp-stage">
+              <option value="application">Application Received</option>
+              <option value="le_sent">Loan Estimate Sent</option>
+              <option value="docs_collected">Documents Collected</option>
+              <option value="appraisal">Appraisal</option>
+              <option value="underwriting">Underwriting</option>
+              <option value="ctc">Clear to Close</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <div class="dp-field">
+            <div class="dp-label">Application date</div>
+            <input class="dp-input" type="date" id="dp-app-date">
+          </div>
+          <div class="dp-field">
+            <div class="dp-label">LE sent date</div>
+            <input class="dp-input" type="date" id="dp-le-date">
+          </div>
+          <div class="dp-field">
+            <div class="dp-label">Appraisal date</div>
+            <input class="dp-input" type="date" id="dp-appraisal-date">
+          </div>
+          <div class="dp-field">
+            <div class="dp-label">UW submitted date</div>
+            <input class="dp-input" type="date" id="dp-uw-date">
+          </div>
+          <div class="dp-field">
+            <div class="dp-label">CTC date</div>
+            <input class="dp-input" type="date" id="dp-ctc-date">
+          </div>
+          <div class="dp-field">
+            <div class="dp-label">Closing date</div>
+            <input class="dp-input" type="date" id="dp-closing-date">
+          </div>
+          <button class="dp-save-btn gold" onclick="savePipeline()">Save Pipeline</button>
+        </div>
+
+        <!-- Loan terms -->
+        <div class="dp-section">
+          <div class="dp-sec-title">Loan Terms</div>
+          <div class="dp-field"><div class="dp-label">Loan amount ($)</div><input class="dp-input" type="number" id="dp-amount" placeholder="538000"></div>
+          <div class="dp-field"><div class="dp-label">New rate (%)</div><input class="dp-input" type="number" step="0.001" id="dp-rate" placeholder="5.875"></div>
+          <div class="dp-field">
+            <div class="dp-label">Loan type</div>
+            <select class="dp-select" id="dp-type">
+              <option value="">Select type</option>
+              <option value="30yr_fixed">30-Year Fixed</option>
+              <option value="15yr_fixed">15-Year Fixed</option>
+              <option value="20yr_fixed">20-Year Fixed</option>
+              <option value="7_1_arm">7/1 ARM</option>
+              <option value="5_1_arm">5/1 ARM</option>
+              <option value="cash_out">Cash-Out Refi</option>
+              <option value="fha">FHA Loan</option>
+              <option value="va">VA Loan</option>
+            </select>
+          </div>
+          <div class="dp-field"><div class="dp-label">New monthly payment ($)</div><input class="dp-input" type="number" id="dp-payment" placeholder="4512"></div>
+          <div class="dp-field"><div class="dp-label">Closing costs ($)</div><input class="dp-input" type="number" id="dp-closing" placeholder="8500"></div>
+          <div class="dp-field"><div class="dp-label">Monthly savings ($)</div><input class="dp-input" type="number" id="dp-savings" placeholder="387"></div>
+          <div class="dp-field">
+            <div class="dp-label">Note to client</div>
+            <textarea class="dp-input" id="dp-notes" rows="3" placeholder="Any message to show on their dashboard..." style="resize:vertical"></textarea>
+          </div>
+          <button class="dp-save-btn" onclick="saveLoanTerms()">Save Loan Terms</button>
+        </div>
+
+        <!-- Documents -->
+        <div class="dp-section">
+          <div class="dp-sec-title">Documents</div>
+          <div id="dp-docs"><div style="color:var(--muted);font-size:13px">Loading...</div></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><strong id="t-title"></strong><span id="t-msg"></span></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+var SUPA_URL = 'https://czmzsqtejdrfcqwsszau.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bXpzcXRlamRyZmNxd3NzemF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODYxODEsImV4cCI6MjA5MDE2MjE4MX0.l8OrqOBR8tCjjoKIiYDN2oVzGDHPmDHyaQa25My4JhQ';
+var supabase = createClient(SUPA_URL, SUPA_KEY);
+
+var ADMIN_EMAIL = 'johncoulolias@gmail.com';
+var currentLead = null;
+var currentPipeline = null;
+var allLeads = [];
+
+// ── On load: check session ──
+window.addEventListener('load', async function() {
+  var hash = window.location.hash;
+  var hasToken = hash && (hash.includes('access_token') || hash.includes('type=magiclink') || hash.includes('type=invite'));
+
+  if (hasToken) {
+    try {
+      var { data, error } = await supabase.auth.getSessionFromUrl({ reloadSession: true });
+      if (data && data.session) {
+        if (data.session.user.email !== ADMIN_EMAIL) {
+          showErr('Access denied. This portal is for admins only.'); return;
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+        showAdminPanel();
+        return;
+      }
+    } catch(e) { console.log(e); }
+  }
+
+  var { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    if (session.user.email !== ADMIN_EMAIL) { showErr('Access denied.'); return; }
+    showAdminPanel();
+  }
+});
+
+async function showAdminPanel() {
+  document.getElementById('admin-login').style.display = 'none';
+  document.getElementById('admin-panel').style.display = 'block';
+  await loadClients();
+}
+
+async function loadClients() {
+  var { data: leads, error } = await supabase
+    .from('leads')
+    .select('*, loan_pipeline(*), documents(*)')
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error(error); return; }
+  allLeads = leads || [];
+  renderStats(allLeads);
+  renderClients(allLeads);
+}
+
+function renderStats(leads) {
+  document.getElementById('stat-total').textContent = leads.length;
+  var active = leads.filter(function(l){ return l.loan_pipeline && l.loan_pipeline.length > 0 && l.loan_pipeline[0].stage !== 'closed'; }).length;
+  document.getElementById('stat-active').textContent = active;
+  var docsNeeded = 0;
+  leads.forEach(function(l){ if(l.documents) docsNeeded += l.documents.filter(function(d){ return d.status === 'pending_upload'; }).length; });
+  document.getElementById('stat-docs').textContent = docsNeeded;
+  var now = new Date();
+  var closed = leads.filter(function(l){
+    if (!l.loan_pipeline || !l.loan_pipeline[0]) return false;
+    var p = l.loan_pipeline[0];
+    if (p.stage !== 'closed' || !p.closing_date) return false;
+    var cd = new Date(p.closing_date);
+    return cd.getMonth() === now.getMonth() && cd.getFullYear() === now.getFullYear();
+  }).length;
+  document.getElementById('stat-closed').textContent = closed;
+}
+
+function renderClients(leads) {
+  var list = document.getElementById('clients-list');
+  if (!leads.length) { list.innerHTML = '<div class="no-clients">No clients yet. They\'ll appear here after submitting the form.</div>'; return; }
+
+  list.innerHTML = leads.map(function(l) {
+    var p = l.loan_pipeline && l.loan_pipeline[0] ? l.loan_pipeline[0] : null;
+    var stage = p ? p.stage : 'application';
+    var stageLabel = { application:'Application', le_sent:'LE Sent', docs_collected:'Docs Collected', appraisal:'Appraisal', underwriting:'Underwriting', ctc:'Clear to Close', closed:'Closed' }[stage] || stage;
+    var balance = l.loan_balance ? '$' + Number(l.loan_balance).toLocaleString() : '—';
+    return '<div class="ct-row" onclick="openClient(\''+l.id+'\')">' +
+      '<div class="ct-d"><div><div class="ct-name">'+l.first_name+' '+l.last_name+'</div><div class="ct-email">'+l.email+'</div></div></div>' +
+      '<div class="ct-d">'+(l.goal||'—')+'</div>' +
+      '<div class="ct-d">'+balance+'</div>' +
+      '<div class="ct-d">'+(l.credit_score||'—')+'</div>' +
+      '<div class="ct-d"><span class="stage-pill stage-'+stage+'">'+stageLabel+'</span></div>' +
+      '<div class="ct-d"><button class="ct-action-btn" onclick="event.stopPropagation();openClient(\''+l.id+'\')">Manage</button></div>' +
+    '</div>';
+  }).join('');
+}
+
+window.openClient = function(leadId) {
+  var lead = allLeads.find(function(l){ return l.id === leadId; });
+  if (!lead) return;
+  currentLead = lead;
+  currentPipeline = lead.loan_pipeline && lead.loan_pipeline[0] ? lead.loan_pipeline[0] : null;
+
+  document.getElementById('dp-name').textContent = lead.first_name + ' ' + lead.last_name;
+  document.getElementById('dp-email').textContent = lead.email;
+
+  if (currentPipeline) {
+    document.getElementById('dp-stage').value       = currentPipeline.stage || 'application';
+    document.getElementById('dp-app-date').value    = currentPipeline.application_date || '';
+    document.getElementById('dp-le-date').value     = currentPipeline.le_sent_date || '';
+    document.getElementById('dp-appraisal-date').value = currentPipeline.appraisal_date || '';
+    document.getElementById('dp-uw-date').value     = currentPipeline.uw_submitted_date || '';
+    document.getElementById('dp-ctc-date').value    = currentPipeline.ctc_date || '';
+    document.getElementById('dp-closing-date').value= currentPipeline.closing_date || '';
+    document.getElementById('dp-amount').value      = currentPipeline.loan_amount || '';
+    document.getElementById('dp-rate').value        = currentPipeline.new_rate || '';
+    document.getElementById('dp-type').value        = currentPipeline.loan_type || '';
+    document.getElementById('dp-payment').value     = currentPipeline.new_payment || '';
+    document.getElementById('dp-closing').value     = currentPipeline.closing_costs || '';
+    document.getElementById('dp-savings').value     = currentPipeline.monthly_savings || '';
+    document.getElementById('dp-notes').value       = currentPipeline.notes || '';
+  }
+
+  renderAdminDocs(lead.documents || []);
+
+  document.getElementById('detail-panel').style.display = 'block';
+  document.getElementById('detail-panel').scrollIntoView({ behavior:'smooth', block:'start' });
+};
+
+function renderAdminDocs(docs) {
+  var el = document.getElementById('dp-docs');
+  if (!docs.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No documents yet.</div>'; return; }
+  el.innerHTML = docs.map(function(d) {
+    return '<div class="doc-admin-row">' +
+      '<div class="doc-admin-name">'+d.file_name+'</div>' +
+      '<select class="doc-admin-select" id="doc-sel-'+d.id+'">' +
+        '<option value="pending_upload"'+(d.status==='pending_upload'?' selected':'')+'>Needed</option>' +
+        '<option value="uploaded"'+(d.status==='uploaded'?' selected':'')+'>Uploaded</option>' +
+        '<option value="reviewed"'+(d.status==='reviewed'?' selected':'')+'>In Review</option>' +
+        '<option value="approved"'+(d.status==='approved'?' selected':'')+'>Approved</option>' +
+        '<option value="rejected"'+(d.status==='rejected'?' selected':'')+'>Rejected</option>' +
+      '</select>' +
+      '<button class="doc-save-btn" onclick="saveDocStatus(\''+d.id+'\')">Save</button>' +
+    '</div>';
+  }).join('');
+}
+
+window.saveDocStatus = async function(docId) {
+  var sel = document.getElementById('doc-sel-' + docId);
+  if (!sel) return;
+  var { error } = await supabase.from('documents').update({ status: sel.value }).eq('id', docId);
+  if (error) { showToast('Error', 'Could not update document'); return; }
+  showToast('Saved ✓', 'Document status updated');
+  await loadClients();
+};
+
+window.savePipeline = async function() {
+  if (!currentLead) return;
+  var updates = {
+    stage:              document.getElementById('dp-stage').value,
+    application_date:   document.getElementById('dp-app-date').value || null,
+    le_sent_date:       document.getElementById('dp-le-date').value || null,
+    appraisal_date:     document.getElementById('dp-appraisal-date').value || null,
+    uw_submitted_date:  document.getElementById('dp-uw-date').value || null,
+    ctc_date:           document.getElementById('dp-ctc-date').value || null,
+    closing_date:       document.getElementById('dp-closing-date').value || null
+  };
+
+  var { error } = currentPipeline
+    ? await supabase.from('loan_pipeline').update(updates).eq('id', currentPipeline.id)
+    : await supabase.from('loan_pipeline').insert({ ...updates, lead_id: currentLead.id });
+
+  if (error) { showToast('Error', error.message); return; }
+  showToast('Saved ✓', 'Pipeline updated for ' + currentLead.first_name);
+  await loadClients();
+};
+
+window.saveLoanTerms = async function() {
+  if (!currentLead) return;
+  var updates = {
+    loan_amount:    parseFloat(document.getElementById('dp-amount').value) || null,
+    new_rate:       parseFloat(document.getElementById('dp-rate').value) || null,
+    loan_type:      document.getElementById('dp-type').value || null,
+    new_payment:    parseFloat(document.getElementById('dp-payment').value) || null,
+    closing_costs:  parseFloat(document.getElementById('dp-closing').value) || null,
+    monthly_savings:parseFloat(document.getElementById('dp-savings').value) || null,
+    notes:          document.getElementById('dp-notes').value || null
+  };
+
+  var { error } = currentPipeline
+    ? await supabase.from('loan_pipeline').update(updates).eq('id', currentPipeline.id)
+    : await supabase.from('loan_pipeline').insert({ ...updates, lead_id: currentLead.id });
+
+  if (error) { showToast('Error', error.message); return; }
+  showToast('Saved ✓', 'Loan terms updated — client will see changes instantly.');
+  await loadClients();
+};
+
+window.closeDetail = function() {
+  document.getElementById('detail-panel').style.display = 'none';
+  currentLead = null; currentPipeline = null;
+};
+
+// ── Auth ──
+window.chkAdminEmail = function() {
+  var v = document.getElementById('al-email').value.trim();
+  document.getElementById('al-btn').disabled = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+};
+
+window.adminLogin = async function() {
+  var email = document.getElementById('al-email').value.trim();
+  var btn = document.getElementById('al-btn');
+  btn.textContent = 'Sending...'; btn.disabled = true;
+
+  var { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href }
+  });
+
+  if (error) { showErr(error.message); btn.textContent = 'SEND SIGN-IN LINK →'; btn.disabled = false; return; }
+  document.getElementById('al-email').style.display = 'none';
+  document.getElementById('al-btn').style.display = 'none';
+  document.getElementById('al-sent').style.display = 'block';
+};
+
+window.adminSignOut = async function() {
+  await supabase.auth.signOut();
+  location.reload();
+};
+
+function showErr(msg) {
+  var el = document.getElementById('al-err');
+  el.textContent = msg; el.classList.add('show');
+}
+
+function showToast(title, msg) {
+  document.getElementById('t-title').textContent = title;
+  document.getElementById('t-msg').textContent = msg;
+  var t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 4000);
+}
+window.showToast = showToast;
+</script>
+</body>
+</html>
