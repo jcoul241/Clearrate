@@ -751,7 +751,10 @@ footer{background:var(--navy);padding:44px 40px 28px;border-top:1px solid rgba(2
         <!-- Document upload -->
         <div class="det-card">
           <h3>📄 Document Checklist</h3>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Upload each document below. Your team will review and confirm receipt.</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px">
+            <p style="font-size:12px;color:var(--muted);">Upload each document below. Your team will review and confirm receipt.</p>
+            <span id="doc-summary" style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap"></span>
+          </div>
           <div class="doc-list" id="dash-doc-list">
             <div class="doc-row">
               <span>⏳</span>
@@ -939,15 +942,37 @@ function updateTrackerUI(p) {
 function updateDocsUI(docs) {
   var list = document.getElementById('dash-doc-list');
   if (!list) return;
+
+  // Doc name map — always show the original name not the uploaded filename
+  var nameMap = {
+    'w2':                 '2024 W-2 / Tax Returns',
+    'pay_stub':           'Last 2 Pay Stubs',
+    'bank_statement':     'Bank Statements (2 months)',
+    'insurance':          "Homeowner's Insurance Declaration",
+    'mortgage_statement': 'Current Mortgage Statement',
+    'id':                 "Photo ID (Driver's License)"
+  };
+
+  // Summary count
+  var uploaded = docs.filter(function(d){ return d.status === 'uploaded' || d.status === 'reviewed' || d.status === 'approved'; }).length;
+  var approved = docs.filter(function(d){ return d.status === 'approved'; }).length;
+  var summaryEl = document.getElementById('doc-summary');
+  if (summaryEl) {
+    summaryEl.textContent = uploaded + ' of ' + docs.length + ' docs uploaded' + (approved > 0 ? ' · ' + approved + ' approved' : '');
+  }
+
   list.innerHTML = docs.map(function(d) {
-    var icon  = d.status === 'approved' ? '✅' : (d.status === 'reviewed' || d.status === 'uploaded') ? '⏳' : '❗';
-    var cls   = d.status === 'approved' ? 'done' : (d.status === 'reviewed' || d.status === 'uploaded') ? 'rev' : 'need';
-    var label = d.status === 'approved' ? 'Received' : d.status === 'reviewed' ? 'In Review' : d.status === 'uploaded' ? 'Uploaded ✓' : 'Needed';
-    var canUpload = d.status === 'pending_upload' || d.status === 'needed';
-    var btn = canUpload
-      ? '<button class="doc-upload-btn" onclick="triggerUpload(\''+d.id+'\')">Upload</button>'
-      : '<button class="doc-upload-btn" disabled style="opacity:.5">'+(d.status==='uploaded'?'Uploaded':'Received')+'</button>';
-    return '<div class="doc-row"><span style="font-size:16px">'+icon+'</span><div class="doc-nm">'+d.file_name+'</div><span class="doc-s '+cls+'">'+label+'</span>'+btn+'</div>';
+    var displayName = nameMap[d.doc_type] || d.file_name;
+    var isApproved  = d.status === 'approved';
+    var isUploaded  = d.status === 'uploaded' || d.status === 'reviewed';
+    var icon  = isApproved ? '✅' : isUploaded ? '⏳' : '❗';
+    var cls   = isApproved ? 'done' : isUploaded ? 'rev' : 'need';
+    var label = isApproved ? 'Approved' : isUploaded ? (d.status === 'reviewed' ? 'In Review' : 'Uploaded ✓') : 'Needed';
+    // Only disable upload if admin has approved it
+    var btn = isApproved
+      ? '<button class="doc-upload-btn" disabled style="opacity:.4;cursor:not-allowed">Approved ✓</button>'
+      : '<button class="doc-upload-btn" onclick="triggerUpload(\''+d.id+'\')">'+(isUploaded ? 'Re-upload' : 'Upload')+'</button>';
+    return '<div class="doc-row"><span style="font-size:16px">'+icon+'</span><div class="doc-nm">'+displayName+'</div><span class="doc-s '+cls+'">'+label+'</span>'+btn+'</div>';
   }).join('');
 }
 
@@ -963,7 +988,7 @@ window.handleDocUpload = async function(input) {
     var path = session.user.id+'/'+currentDocId+'/'+file.name;
     var { error:upErr } = await supabase.storage.from('loan-documents').upload(path, file, {upsert:true});
     if (upErr) { showToast('Upload failed', 'Please try again'); return; }
-    await supabase.from('documents').update({status:'uploaded',storage_path:path,file_name:file.name,file_type:file.type}).eq('id',currentDocId);
+    await supabase.from('documents').update({status:'uploaded',storage_path:path,file_type:file.type}).eq('id',currentDocId);
     showToast('Uploaded! ✓', file.name+' sent to your loan team.');
     var resp = await fetch('/api/get-loan',{headers:{'Authorization':'Bearer '+session.access_token}});
     var data = await resp.json();
