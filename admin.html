@@ -456,18 +456,26 @@ function renderAdminDocs(docs) {
 
 window.downloadDoc = async function(storagePath, fileName) {
   try {
-    var { data, error } = await supabase.storage
-      .from('loan-documents')
-      .createSignedUrl(storagePath, 300); // 5 minute signed URL
-    if (error) { showToast('Error', 'Could not get download link'); return; }
+    showToast('Preparing download...', fileName);
+    var resp = await fetch('/api/get-download-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: storagePath })
+    });
+    var result = await resp.json();
+    if (!resp.ok || !result.url) {
+      showToast('Error', 'Could not get download link');
+      return;
+    }
     var a = document.createElement('a');
-    a.href = data.signedUrl;
+    a.href = result.url;
     a.download = fileName;
     a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   } catch(e) {
+    console.error('Download error:', e);
     showToast('Error', 'Download failed');
   }
 };
